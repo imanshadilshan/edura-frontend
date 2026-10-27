@@ -40,6 +40,8 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # lets the badge step push coverage.json to the badges branch
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js
@@ -56,6 +58,29 @@ jobs:
           name: coverage-report
           path: coverage/
           if-no-files-found: ignore
+
+      # Coverage badge: after a push to develop, write the line coverage as a
+      # shields.io endpoint file on the "badges" branch. The README badge reads it.
+      - name: Publish coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          pct=$(awk -F: '/^LF:/{f+=$2} /^LH:/{h+=$2} END{if(f>0) printf "%.0f", h*100/f; else print 0}' coverage/lcov.info)
+          if [ "$pct" -ge 80 ]; then color=brightgreen; elif [ "$pct" -ge 60 ]; then color=yellow; else color=red; fi
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${pct}%\",\"color\":\"${color}\"}" > "$RUNNER_TEMP/coverage.json"
+          echo "Line coverage: ${pct}%" >> "$GITHUB_STEP_SUMMARY"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin badges > /dev/null; then
+            git fetch origin badges
+            git checkout -B badges origin/badges
+          else
+            git checkout --orphan badges
+            git rm -rf . > /dev/null
+          fi
+          cp "$RUNNER_TEMP/coverage.json" coverage.json
+          git add coverage.json
+          git diff --cached --quiet || git commit -m "chore(badges): update coverage badge to ${pct}%"
+          git push origin badges
 
   security:
     name: Security Scan

@@ -1,7 +1,7 @@
 # EDURA Frontend — Next.js & Redux LMS
 
 [![Frontend CI](https://github.com/Edura-LMS-Zynaptrix/edura-frontend/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Edura-LMS-Zynaptrix/edura-frontend/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/Edura-LMS-Zynaptrix/edura-frontend/branch/develop/graph/badge.svg)](https://codecov.io/gh/Edura-LMS-Zynaptrix/edura-frontend)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Edura-LMS-Zynaptrix/edura-frontend/badges/coverage.json)](https://github.com/Edura-LMS-Zynaptrix/edura-frontend/actions/workflows/ci.yml)
 
 This repository contains the Next.js frontend application for the EDURA Learning Management System (LMS). It is one part of the EDURA project:
 
@@ -97,6 +97,8 @@ npm run format:check     # Prettier check (use `npx prettier --write .` to fix)
 ## Continuous integration
 
 Every pull request and every push to `develop`, `main`, `feature/**`, `fix/**`, `hotfix/**` and `release/**` runs the **Frontend CI** workflow, with four jobs: `Lint & Format`, `Build`, `Unit Tests` (with a coverage artifact) and `Security Scan`. The security scan uses `audit-ci` with a documented allowlist of accepted advisories (`audit-ci.jsonc`, recorded in ADR-14 in edura-documents).
+
+The coverage badge at the top is updated by the `Unit Tests` job on every push to `develop`: it calculates the line coverage and writes it to `coverage.json` on the `badges` branch, which the badge reads.
 
 ## Branching and releases
 
